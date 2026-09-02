@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "ctxbroker",
+    "output": "ctxbroker-architecture.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "publishers", "type": "external", "label": "Publishers", "sublabel": "Agents / processes", "pos": [30, 180], "size": [120, 60] },
+    { "id": "nats", "type": "messagebus", "label": "NATS JetStream", "sublabel": "agent.context", "pos": [250, 180], "size": [130, 60] },
+    { "id": "drain", "type": "backend", "label": "ctxbroker drain", "sublabel": "CLI / MCP", "pos": [470, 180], "size": [130, 60] },
+    { "id": "ledger", "type": "database", "label": "SQLite ledger", "sublabel": "claim / lease", "pos": [690, 180], "size": [130, 60] },
+    { "id": "plugin", "type": "backend", "label": "opencode plugin", "sublabel": "messages.transform", "pos": [700, 380], "size": [130, 60] },
+    { "id": "agent", "type": "external", "label": "Agent session", "sublabel": "opencode", "pos": [700, 560], "size": [130, 60] }
+  ],
+  "connections": [
+    { "id": "pub-to-nats", "from": "publishers", "to": "nats", "label": "publish", "variant": "emphasis" },
+    { "id": "nats-to-drain", "from": "nats", "to": "drain", "label": "drain (pull)" },
+    { "id": "drain-to-ledger", "from": "drain", "to": "ledger", "label": "store, then ack" },
+    { "id": "plugin-to-drain", "from": "plugin", "to": "drain", "label": "run drain", "variant": "dashed", "fromSide": "left" },
+    { "id": "plugin-fetch", "from": "plugin", "to": "ledger", "label": "fetch + ack", "variant": "dashed", "fromSide": "top" },
+    { "id": "agent-to-plugin", "from": "agent", "to": "plugin", "label": "chat turn" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Ingest", "items": ["Publishers put context on a NATS JetStream subject", "drain pulls up to N messages into the local ledger"] },
+    { "dot": "emerald", "title": "Delivery", "items": ["opencode plugin fetches a leased message on each chat turn", "Message is injected as a synthetic user 'context' message"] },
+    { "dot": "rose", "title": "Exactly-once", "items": ["Store-then-ack outbox ordering", "NATS redelivery is a no-op (idempotent msg_id)", "Only the lease holder may ack"] }
+  ]
+}
