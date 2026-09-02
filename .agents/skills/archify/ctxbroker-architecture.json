@@ -7,18 +7,18 @@
     "quality_profile": "showcase"
   },
   "components": [
-    { "id": "publishers", "type": "external", "label": "Publishers", "sublabel": "Agents / processes", "pos": [30, 180], "size": [120, 60] },
-    { "id": "nats", "type": "messagebus", "label": "NATS JetStream", "sublabel": "agent.context", "pos": [250, 180], "size": [130, 60] },
-    { "id": "drain", "type": "backend", "label": "ctxbroker drain", "sublabel": "CLI / MCP", "pos": [470, 180], "size": [130, 60] },
-    { "id": "ledger", "type": "database", "label": "SQLite ledger", "sublabel": "claim / lease", "pos": [690, 180], "size": [130, 60] },
-    { "id": "plugin", "type": "backend", "label": "opencode plugin", "sublabel": "messages.transform", "pos": [700, 380], "size": [130, 60] },
-    { "id": "agent", "type": "external", "label": "Agent session", "sublabel": "opencode", "pos": [700, 560], "size": [130, 60] }
+    { "id": "publishers", "type": "external", "label": "Publishers", "sublabel": "Agents / processes", "pos": [30, 120], "size": [120, 60] },
+    { "id": "nats", "type": "messagebus", "label": "NATS JetStream", "sublabel": "agent.context", "pos": [250, 120], "size": [130, 60] },
+    { "id": "drain", "type": "backend", "label": "ctxbroker drain", "sublabel": "CLI / MCP", "pos": [470, 120], "size": [130, 60] },
+    { "id": "ledger", "type": "database", "label": "SQLite ledger", "sublabel": "claim / lease", "pos": [690, 120], "size": [130, 60] },
+    { "id": "plugin", "type": "backend", "label": "opencode plugin", "sublabel": "messages.transform", "pos": [700, 340], "size": [130, 60] },
+    { "id": "agent", "type": "external", "label": "Agent session", "sublabel": "opencode", "pos": [90, 340], "size": [130, 60] }
   ],
   "connections": [
     { "id": "pub-to-nats", "from": "publishers", "to": "nats", "label": "publish", "variant": "emphasis" },
     { "id": "nats-to-drain", "from": "nats", "to": "drain", "label": "drain (pull)" },
-    { "id": "drain-to-ledger", "from": "drain", "to": "ledger", "label": "store, then ack" },
-    { "id": "plugin-to-drain", "from": "plugin", "to": "drain", "label": "run drain", "variant": "dashed", "fromSide": "left" },
+    { "id": "drain-to-ledger", "from": "drain", "to": "ledger", "label": "store, then ack", "labelDy": -24 },
+    { "id": "plugin-to-drain", "from": "plugin", "to": "drain", "label": "run drain", "variant": "dashed", "fromSide": "top" },
     { "id": "plugin-fetch", "from": "plugin", "to": "ledger", "label": "fetch + ack", "variant": "dashed", "fromSide": "top" },
     { "id": "agent-to-plugin", "from": "agent", "to": "plugin", "label": "chat turn" }
   ],
