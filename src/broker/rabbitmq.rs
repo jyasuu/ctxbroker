@@ -1,9 +1,5 @@
-//! UNVERIFIED: written against documented `lapin` 2.x APIs from memory/training,
-//! not compiled. rustc in the build environment caps at 1.75; lapin's async
-//! runtime dependencies need edition2024. Run `cargo check` on a real toolchain
-//! (1.85+) before trusting this -- likely fixes needed: exact `lapin` option
-//! struct field names, and whether `BasicGetOptions`/`BasicNackOptions` still
-//! shape this way in whatever 2.x patch you land on.
+//! RabbitMQ backend: durable queue + persistent deliveries (`delivery_mode=2`),
+//! publishes wait for a broker confirm. Verified with lapin 2.x / rustc 1.98.
 
 use super::{BrokerMessage, MessageBroker};
 use anyhow::{Context, Result};

@@ -11,9 +11,8 @@ rusqlite = { version = "0.31", features = ["bundled"] }
 anyhow = "1"
 
 # --- broker + MCP layer -----------------------------------------------------
-# UNVERIFIED in this environment: rustc here caps at 1.75 and these crates'
-# dependency trees need edition2024 (see chat notes). Build/fix on a machine
-# with rustc 1.85+ before trusting any of this to compile.
+# Requires rustc 1.85+ (these crate dependency trees use edition 2024).
+# Verified with rustc/cargo 1.98.
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync"] }
 async-trait = "0.1"
 lapin = "2"

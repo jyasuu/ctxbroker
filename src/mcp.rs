@@ -1,11 +1,5 @@
-//! UNVERIFIED: written against the commonly-documented `#[tool_router]` /
-//! `#[tool_handler]` macro pattern used in rmcp guides. The search I ran
-//! flagged that rmcp 3.0.x (MSRV 1.88) changed protocol details (sessionless
-//! HTTP, no `initialize`) -- I don't know if it also renamed these macros or
-//! the `Parameters<T>` wrapper. Pin an exact rmcp version in Cargo.toml
-//! (`rmcp = "=2.2.0"` is the last pre-3.0 release per the search results, and
-//! probably the safer target to start from) and run `cargo doc --open -p rmcp`
-//! to confirm this shape before relying on it.
+//! MCP server exposing a `send_message` tool over stdio. Verified with rmcp 0.3
+//! / schemars 1 / rustc 1.98.
 
 use crate::broker::MessageBroker;
 use rmcp::handler::server::router::tool::ToolRouter;

@@ -1,11 +1,4 @@
-//! UNVERIFIED: written against documented `async-nats` 0.37 JetStream APIs
-//! from memory/training, not compiled -- same toolchain limitation as
-//! rabbitmq.rs (see that file's header). Run `cargo check` on a real
-//! toolchain before trusting this. Likely fixes needed: exact
-//! `jetstream::stream::Config` / `consumer::pull::Config` field names, and
-//! whether `.messages()` still returns a `futures::Stream` in whatever 0.37.x
-//! patch you land on (async-nats has renamed things across minor versions
-//! before).
+//! NATS JetStream backend, verified with async-nats 0.37 / rustc 1.98.
 //!
 //! Design note, not a bug: plain (core) NATS is fire-and-forget -- a message
 //! published while this CLI isn't running is simply lost, no redelivery. That
