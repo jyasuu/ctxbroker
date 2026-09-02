@@ -33,6 +33,6 @@ pub trait MessageBroker: Send + Sync {
     async fn drain(
         &self,
         max: usize,
-        sink: &mut dyn FnMut(BrokerMessage) -> Result<()>,
+        sink: &mut (dyn FnMut(BrokerMessage) -> Result<()> + Send),
     ) -> Result<usize>;
 }

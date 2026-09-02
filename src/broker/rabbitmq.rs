@@ -65,7 +65,7 @@ impl MessageBroker for RabbitMqBroker {
     async fn drain(
         &self,
         max: usize,
-        sink: &mut dyn FnMut(BrokerMessage) -> Result<()>,
+        sink: &mut (dyn FnMut(BrokerMessage) -> Result<()> + Send),
     ) -> Result<usize> {
         let mut drained = 0;
         for _ in 0..max {

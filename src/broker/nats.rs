@@ -91,7 +91,7 @@ impl MessageBroker for NatsBroker {
     async fn drain(
         &self,
         max: usize,
-        sink: &mut dyn FnMut(BrokerMessage) -> Result<()>,
+        sink: &mut (dyn FnMut(BrokerMessage) -> Result<()> + Send),
     ) -> Result<usize> {
         let stream = self
             .js
@@ -101,7 +101,7 @@ impl MessageBroker for NatsBroker {
         let consumer: PullConsumer = stream
             .get_consumer(&self.consumer_name)
             .await
-            .context("getting consumer handle")?;
+            .map_err(|e| anyhow::anyhow!("getting consumer handle: {e}"))?;
 
         // expires bounds how long we wait if the queue is empty -- this is a
         // one-shot CLI call, it must not hang indefinitely.
@@ -115,7 +115,7 @@ impl MessageBroker for NatsBroker {
 
         let mut drained = 0;
         while let Some(msg) = messages.next().await {
-            let msg = msg.context("reading pulled message")?;
+            let msg = msg.map_err(|e| anyhow::anyhow!("reading pulled message: {e}"))?;
 
             let id = msg
                 .headers

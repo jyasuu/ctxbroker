@@ -21,4 +21,4 @@ async-nats = "0.37"
 futures = "0.3"
 uuid = { version = "1", features = ["v4"] }
 rmcp = { version = "0.3", features = ["server", "transport-io"] }
-schemars = "0.8"
+schemars = "1"

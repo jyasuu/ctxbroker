@@ -1,0 +1,13 @@
+services:
+  nats:
+    image: nats:2.10
+    container_name: ctxbroker-nats
+    ports:
+      - "4222:4222"   # client
+      - "8222:8222"   # monitoring / JetStream
+    command: ["-js", "-m", "8222", "--store_dir", "/data"]
+    volumes:
+      - nats-data:/data
+
+volumes:
+  nats-data:

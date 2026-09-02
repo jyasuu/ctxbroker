@@ -23,7 +23,6 @@ struct Cli {
 /// picking RabbitMQ or NATS is a deployment choice, not a per-call one, but
 /// keeping it a flag (vs. a config file) keeps the CLI self-contained for now.
 #[derive(Args, Clone)]
-#[group(required = true, multiple = false)]
 struct BrokerArgs {
     #[arg(long)]
     amqp_url: Option<String>,
@@ -43,6 +42,14 @@ struct BrokerArgs {
 
 impl BrokerArgs {
     async fn connect(&self) -> anyhow::Result<Arc<dyn MessageBroker>> {
+        let has_amqp = self.amqp_url.is_some();
+        let has_nats = self.nats_url.is_some();
+        if has_amqp && has_nats {
+            anyhow::bail!("use either --amqp-url or --nats-url, not both");
+        }
+        if !has_amqp && !has_nats {
+            anyhow::bail!("pass --amqp-url or --nats-url");
+        }
         if let Some(url) = &self.amqp_url {
             let queue = self
                 .queue
@@ -59,7 +66,6 @@ impl BrokerArgs {
             let b = NatsBroker::connect(url, subject, &self.durable).await?;
             return Ok(Arc::new(b));
         }
-        // Unreachable given the clap group's required(true), kept for clarity.
         anyhow::bail!("no broker configured -- pass --amqp-url or --nats-url")
     }
 

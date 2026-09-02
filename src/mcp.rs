@@ -8,11 +8,13 @@
 //! to confirm this shape before relying on it.
 
 use crate::broker::MessageBroker;
+use rmcp::handler::server::router::tool::ToolRouter;
 use rmcp::handler::server::tool::Parameters;
 use rmcp::model::{Implementation, ServerCapabilities, ServerInfo};
 use rmcp::{tool, tool_handler, tool_router, ServerHandler, ServiceExt};
 use schemars::JsonSchema;
 use serde::Deserialize;
+use std::future::Future;
 use std::sync::Arc;
 
 #[derive(Debug, Deserialize, JsonSchema)]
@@ -27,12 +29,16 @@ pub struct SendMessageParams {
 #[derive(Clone)]
 pub struct CtxBrokerMcp {
     broker: Arc<dyn MessageBroker>,
+    tool_router: ToolRouter<Self>,
 }
 
 #[tool_router]
 impl CtxBrokerMcp {
     pub fn new(broker: Arc<dyn MessageBroker>) -> Self {
-        Self { broker }
+        Self {
+            broker,
+            tool_router: Self::tool_router(),
+        }
     }
 
     #[tool(description = "Publish a message onto the broker for other agents/sessions to fetch")]
