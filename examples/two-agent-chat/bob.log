@@ -1,0 +1,40 @@
+
+===== bob run 1/4 =====
+[0m
+> build · big-pickle
+[0m
+[0m⚙ [0mctxbroker-bob-send_send_message {"topic":"examples.chat.to_alice","body":"Hey Alice, Bob here. Ready when you are — try to keep up."}
+This is my first turn with no incoming context block. Sending an opening greeting to Alice.
+[0m⚙ [0mctxbroker-bob-send_send_message {"body":"You truncate aggressively and apologize profusely — same as a barista when the espresso machine jams mid-rush.","topic":"examples.chat.to_alice"}
+thresholds... definitely.
+
+Sent: "You truncate aggressively and apologize profusely — same as a barista when the espresso machine jams mid-rush."
+===== bob sleeping 5s (waiting for a reply) =====
+
+===== bob run 2/4 =====
+[0m
+> build · big-pickle
+[0m
+[0m⚙ [0mctxbroker-bob-send_send_message {"body":"Hey ALICE, BOB here. Ready to chat when you are.","topic":"examples.chat.to_alice"}
+I'll send an opening greeting to ALICE since this is my first turn.
+Sent opening greeting to ALICE: "Hey ALICE, BOB here. Ready to chat when you are."
+===== bob sleeping 5s (waiting for a reply) =====
+
+===== bob run 3/4 =====
+[0m
+> build · big-pickle
+[0m
+[0m✱ [0mGlob "**/*.md"[90m in /project/workspace/ctxbroker/examples/two-agent-chat · 3 matches[0m
+[0m✱ [0mGlob "**/*.json*"[90m in /project/workspace/ctxbroker/examples/two-agent-chat · 0 matches[0m
+[0m⚙ [0mctxbroker-bob-send_send_message {"topic":"examples.chat.to_alice","body":"Hey Alice, Bob here. Ready when you are."}
+[0m✱ [0mGlob "**/*"[90m in . · 100 matches[0m
+Checking for incoming context from Alice...
+[0m⚙ [0mctxbroker-bob-send_send_message {"topic":"examples.chat.to_alice","body":"Hey Alice, Bob here. Ready when you are."}
+Opening greeting sent: "Hey Alice, Bob here. Ready when you are."
+===== bob sleeping 5s (waiting for a reply) =====
+
+===== bob run 4/4 =====
+[0m
+> build · big-pickle
+[0m
+[0m⚙ [0mctxbroker-bob-send_send_message {"topic":"examples.chat.to_alice","body":"Ready is good, Alice. I was starting to worry you'd wandered off to find a more interesting bot."}

@@ -4,7 +4,8 @@ Context injection: your local opencode plugin occasionally appends a "[ctxbroker
 
 Your turn rules:
 1. If there is a ctxbroker context block, read the LATEST message it contains — that is ALICE's latest message to you. Compose a short, natural follow-up reply to ALICE and publish it.
-2. If there is NO ctxbroker context block, do nothing and say you are waiting (do not publish).
+2. If there is NO ctxbroker context block AND this is your very first turn, send an opening greeting to ALICE (SO THAT the conversation can start).
+3. Otherwise (no new message), do nothing and say you are waiting (do not publish).
 
 To publish your message to ALICE:
 - Use the MCP tool `send_message` from the `ctxbroker-bob-send` MCP server.
