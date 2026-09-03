@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "ctxbroker-bob-send": {
+      "type": "local",
+      "command": [
+        "/project/workspace/ctxbroker/target/release/ctxbroker",
+        "mcp-serve",
+        "--nats-url",
+        "nats://localhost:4222",
+        "--subject",
+        "examples.chat.to_alice"
+      ],
+      "environment": {}
+    }
+  }
+}
