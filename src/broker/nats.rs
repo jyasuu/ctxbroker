@@ -8,12 +8,12 @@
 
 use super::{BrokerMessage, MessageBroker};
 use anyhow::{Context, Result};
-use async_trait::async_trait;
 use async_nats::jetstream::{
     self,
     consumer::{pull::Config as PullConfig, PullConsumer},
     stream::Config as StreamConfig,
 };
+use async_trait::async_trait;
 use futures::StreamExt;
 
 pub struct NatsBroker {
@@ -126,7 +126,9 @@ impl MessageBroker for NatsBroker {
 
             match sink(bm) {
                 Ok(()) => {
-                    msg.ack().await.map_err(|e| anyhow::anyhow!("ack failed: {e}"))?;
+                    msg.ack()
+                        .await
+                        .map_err(|e| anyhow::anyhow!("ack failed: {e}"))?;
                     drained += 1;
                 }
                 Err(e) => {

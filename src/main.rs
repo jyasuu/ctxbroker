@@ -174,7 +174,10 @@ async fn run(cli: &Cli) -> anyhow::Result<Value> {
     }
 
     match &cli.command {
-        Command::Fetch { session, lease_secs } => {
+        Command::Fetch {
+            session,
+            lease_secs,
+        } => {
             let mut store = Store::open(&cli.db)?;
             let message = store.claim_next(session, *lease_secs)?;
             Ok(json!({ "message": message }))
@@ -184,26 +187,28 @@ async fn run(cli: &Cli) -> anyhow::Result<Value> {
             let acked = store.ack(msg_id, session)?;
             Ok(json!({ "acked": acked, "id": msg_id }))
         }
-        Command::Send { topic, body, broker } => {
-            match broker.as_ref().and_then(|b| b.as_required()) {
-                Some(b) => {
-                    let conn = b.connect().await?;
-                    let t = topic
-                        .clone()
-                        .or_else(|| b.default_topic().map(str::to_string))
-                        .ok_or_else(|| anyhow::anyhow!("--topic (or --queue/--subject) is required"))?;
-                    conn.publish(&t, body.as_bytes()).await?;
-                    Ok(json!({ "status": "published", "topic": t }))
-                }
-                None => {
-                    let mut store = Store::open(&cli.db)?;
-                    let id = format!("local-{}", nanos_stamp());
-                    let t = topic.clone().unwrap_or_else(|| "local".to_string());
-                    store.enqueue(&id, &t, body)?;
-                    Ok(json!({ "id": id, "status": "staged (no broker configured)" }))
-                }
+        Command::Send {
+            topic,
+            body,
+            broker,
+        } => match broker.as_ref().and_then(|b| b.as_required()) {
+            Some(b) => {
+                let conn = b.connect().await?;
+                let t = topic
+                    .clone()
+                    .or_else(|| b.default_topic().map(str::to_string))
+                    .ok_or_else(|| anyhow::anyhow!("--topic (or --queue/--subject) is required"))?;
+                conn.publish(&t, body.as_bytes()).await?;
+                Ok(json!({ "status": "published", "topic": t }))
             }
-        }
+            None => {
+                let mut store = Store::open(&cli.db)?;
+                let id = format!("local-{}", nanos_stamp());
+                let t = topic.clone().unwrap_or_else(|| "local".to_string());
+                store.enqueue(&id, &t, body)?;
+                Ok(json!({ "id": id, "status": "staged (no broker configured)" }))
+            }
+        },
         Command::Drain { broker, max } => {
             let mut store = Store::open(&cli.db)?;
             let conn = broker.connect().await?;

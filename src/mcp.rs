@@ -41,8 +41,14 @@ impl CtxBrokerMcp {
         // publish_message() in main.rs. Keeping exactly one publish code path
         // means the MCP tool and the CLI can never drift on delivery-mode,
         // topic handling, etc.
-        match self.broker.publish(&params.topic, params.body.as_bytes()).await {
-            Ok(()) => serde_json::json!({ "status": "published", "topic": params.topic }).to_string(),
+        match self
+            .broker
+            .publish(&params.topic, params.body.as_bytes())
+            .await
+        {
+            Ok(()) => {
+                serde_json::json!({ "status": "published", "topic": params.topic }).to_string()
+            }
             Err(e) => serde_json::json!({ "error": e.to_string() }).to_string(),
         }
     }

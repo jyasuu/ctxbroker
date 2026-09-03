@@ -21,8 +21,7 @@ impl Store {
     /// subagents, each shelling out to this binary) read/write concurrently
     /// without stepping on each other.
     pub fn open(path: &str) -> Result<Self> {
-        let conn = Connection::open(path)
-            .with_context(|| format!("opening store at {path}"))?;
+        let conn = Connection::open(path).with_context(|| format!("opening store at {path}"))?;
         conn.pragma_update(None, "journal_mode", "WAL")?;
         conn.pragma_update(None, "busy_timeout", 5000)?;
         conn.execute_batch(
