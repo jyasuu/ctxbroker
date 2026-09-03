@@ -12,15 +12,17 @@
 #       BOB   sends to examples.chat.to_alice
 #
 # Each agent loops N times: run opencode (compose a reply from the injected
-# context and publish it), then SLEEP so the other side has time to drain and
-# reply before the next iteration. Exactly-once delivery is handled by the
+# context and publish it). There is NO script-level sleep or turn alternation
+# here -- each AGENT waits for a reply itself by calling its Bash tool to run
+# `sleep <n>` (see prompt.md) so the other side has time to drain and respond
+# before this agent's next iteration. Exactly-once delivery is handled by the
 # shared JetStream + per-agent claim ledger.
 #
 # Per-agent stdout/stderr is appended to <agent>.log; both logs are printed
 # after both processes finish.
 #
 # Usage:
-#   examples/two-agent-chat/run-chat.sh [turns] [sleep]   # default 4 turns, 5s sleep
+#   examples/two-agent-chat/run-chat.sh [turns]          # default 4 turns
 # Env:
 #   OPENCODE_BIN   path to the opencode binary        (default /root/.opencode/bin/opencode)
 #   CTXBROKER_BIN  path to the ctxbroker binary       (optional; auto-discovered otherwise)
@@ -29,7 +31,6 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OPENCODE_BIN="${OPENCODE_BIN:-/root/.opencode/bin/opencode}"
 TURNS="${1:-4}"
-SLEEP="${2:-5}"
 
 run_agent() {
   local agent="$1"
@@ -41,13 +42,11 @@ run_agent() {
       echo ""
       echo "===== $agent run $((i + 1))/$TURNS ====="
       (cd "$SCRIPT_DIR/$agent" && "$OPENCODE_BIN" run "$(cat "$prompt")")
-      echo "===== $agent sleeping ${SLEEP}s (waiting for a reply) ====="
-      sleep "$SLEEP"
     } >> "$log" 2>&1
   done
 }
 
-echo "Starting ALICE and BOB in parallel (${TURNS} turns each, ${SLEEP}s sleep)..."
+echo "Starting ALICE and BOB in parallel (${TURNS} turns each; agents wait via their own Bash tool sleep)..."
 run_agent alice &
 PID_A=$!
 run_agent bob &

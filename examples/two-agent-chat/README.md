@@ -51,8 +51,11 @@ Both live in the `examples.chat.*` namespace, separate from `agent.context`.
 examples/two-agent-chat/run-chat.sh [turns]     # default 4 turns
 ```
 
-`run-chat.sh` alternates: ALICE run → BOB run → ALICE run → BOB run → …
-Each turn produces one publish.
+`run-chat.sh` launches ALICE and BOB as PARALLEL background processes; each
+loops over `[turns]` runs and each turn produces one publish. There is no
+script-level sleep or forced turn alternation: each agent waits between turns
+by calling its own Bash tool to run `sleep`, so both drains and publishes
+concurrently and replies land from either side at any time.
 
 ### Manual (without the runner)
 
@@ -84,7 +87,7 @@ $BIN drain --db /tmp/bob.db   --nats-url nats://localhost:4222 \
 
 ```
 two-agent-chat/
-  run-chat.sh                       # alternates the two opencode processes
+  run-chat.sh                       # runs the two opencode processes in parallel
   README.md                         # this file
   alice/
     .opencode/opencode.json         # registers ctxbroker-alice-send -> examples.chat.to_bob
