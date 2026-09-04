@@ -14,6 +14,7 @@ const SESSION_ID = "example-alice"
 const DB = ".ctxbroker/example-alice.db"
 
 const NATS_URL = process.env.NATS_URL ?? "nats://localhost:4222"
+const SEND_TOOL = "ctxbroker-alice-send_send_message"
 
 // Resolve the ctxbroker binary: prefer $CTXBROKER_BIN, else walk up from the
 // project directory looking for a release build (works from any examples dir).
@@ -63,11 +64,18 @@ export const NatsContextPlugin: Plugin = async ({ $, directory }) => {
   }
 
   return {
-    async event({ event }) {
-      if (["session.created", "session.updated", "session.idle", "session.compacted"].includes(event.type)) {
-        await drain()
-      }
+    // Drain right after this agent publishes a reply: that's the exact moment
+    // the peer could have a reply inbound, so the next `messages.transform`
+    // (once per LLM round) finds it with minimal latency. This is much cheaper
+    // and less racy than an `event` hook on session.* (session.updated fires
+    // dozens of times per run alongside streaming deltas).
+    async "tool.execute.after"({ tool }) {
+      if (tool === SEND_TOOL) await drain()
     },
+    // This is the only working injection hook in this opencode build
+    // (1.18.27): `experimental.chat.system.transform` output is silently
+    // dropped. It fires exactly once per LLM round trip, so draining here
+    // guarantees we always have the freshest inbound messages in context.
     async "experimental.chat.messages.transform"(_input, output) {
       await drain()
       const bodies = await collectContext()

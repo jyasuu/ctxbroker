@@ -56,14 +56,20 @@ export const NatsContextPlugin: Plugin = async ({ $, directory }) => {
     return acc
   }
 
+  const SEND_TOOL = `${process.env.CTXBROKER_MCP_NAME ?? "ctxbroker"}_send_message`
+
   return {
-    async event({ event }) {
-      // Pull messages into the store as early as possible so the messages
-      // transform (which runs on the first LLM request) finds them.
-      if (["session.created", "session.updated", "session.idle", "session.compacted"].includes(event.type)) {
-        await drain()
-      }
+    // Drain right after a message is published: that's the exact moment a reply
+    // could be inbound, so the next `messages.transform` (once per LLM round)
+    // finds it with minimal latency. Much cheaper and less racy than an `event`
+    // hook on session.* -- session.updated fires dozens of times per run
+    // alongside streaming deltas.
+    async "tool.execute.after"({ tool }) {
+      if (tool === SEND_TOOL) await drain()
     },
+    // This is the only working injection hook in this opencode build (1.18.26+/):
+    // `experimental.chat.system.transform` output is silently dropped. It fires
+    // exactly once per LLM round trip, so draining here guarantees fresh context.
     async "experimental.chat.messages.transform"(_input, output) {
       await drain()
       const bodies = await collectContext()

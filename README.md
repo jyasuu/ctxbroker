@@ -130,15 +130,22 @@ docker compose up -d
 `.opencode/plugins/nats-context.ts` bridges NATS → the agent loop without any
 CLI wiring by hand:
 
-- On session events it runs `ctxbroker drain` to move broker messages into the
-  ledger early.
+- On `tool.execute.after` (scoped to the `*_send_message` MCP tool) it runs
+  `ctxbroker drain` right after the agent publishes — the exact moment a reply
+  could be inbound — moving broker messages into the ledger with minimal
+  latency. (An `event` hook on `session.*` is deliberately avoided:
+  `session.updated`/`session.status` fire dozens of times per run alongside
+  streaming deltas, causing many redundant drains.)
 - On `experimental.chat.messages.transform` it drains again, then claims every
   pending/expired message (`fetch` + `ack`) and injects them as a synthetic
   user "context" message into the conversation, so the agent observes and can
-  act on them.
+  act on them. This hook is the only reliable *injection* point (see note
+  below) and fires exactly once per LLM round trip.
 
 Env overrides: `CTXBROKER_BIN`, `CTXBROKER_DB`, `NATS_URL`,
-`CTXBROKER_SUBJECT`, `CTXBROKER_DURABLE`, `CTXBROKER_SESSION`.
+`CTXBROKER_SUBJECT`, `CTXBROKER_DURABLE`, `CTXBROKER_SESSION`,
+`CTXBROKER_MCP_NAME` (prefix of the MCP `send_message` tool the plugin drains
+after; default `ctxbroker`).
 
 > Note: this plugin targets opencode 1.18.26 (anomalyco fork), where
 > `experimental.chat.system.transform` output is silently ignored; the
